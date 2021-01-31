@@ -1,0 +1,24 @@
+kind: pipeline
+type: docker
+name: default
+
+clone:
+  depth: 1
+
+steps:
+- name: release
+  image: registry.cn-beijing.aliyuncs.com/wa/node
+  when:
+    event: push
+    branch: master
+  environment:
+    UPX_USER:
+      from_secret: upx_user
+    UPX_PASSWD:
+      from_secret: upx_passwd
+  commands:
+    - echo "branch is $DRONE_BRANCH, commit id is $DRONE_COMMIT"
+    - npm install
+    - npm run build
+    - upx login raul-web-test $UPX_USER $UPX_PASSWD
+    - upx sync ./dist/ /
